@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonImg, IonActionSheet, useIonViewWillEnter,useIonViewWillLeave, IonFab, IonFabButton, IonIcon } from '@ionic/react';
-import { trash, close, camera } from 'ionicons/icons';
+import { trash, close } from 'ionicons/icons';
 import { usePhotoGallery, UserPhoto } from '../hooks/usePhotoGallery';
 
 const Tab2: React.FC = () => {
@@ -12,13 +12,13 @@ const Tab2: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
+        <IonToolbar color="primary">
           <IonTitle>Photo Gallery</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
       <IonHeader collapse="condense">
-          <IonToolbar>
+          <IonToolbar color="primary">
             <IonTitle size="large">Photo Gallery</IonTitle>
           </IonToolbar>
         </IonHeader>
