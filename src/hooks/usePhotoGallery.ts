@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
 import { isPlatform } from '@ionic/react';
-
-
 import { Camera, CameraResultType, CameraSource, Photo } from '@capacitor/camera';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Preferences } from '@capacitor/preferences';
 import { Capacitor } from '@capacitor/core';
+import { phoneLandscape } from "ionicons/icons";
 
 const PHOTO_STORAGE = 'photos';
+
 export function usePhotoGallery() {
-
   const [photos, setPhotos] = useState<UserPhoto[]>([]);
-
   useEffect(() => {
     const loadSaved = async () => {
       const { value } = await Preferences.get({key: PHOTO_STORAGE });
@@ -40,10 +38,12 @@ export function usePhotoGallery() {
       quality: 100
     });
     const fileName = new Date().getTime() + '.jpeg';
+    console.log(fileName);
     const savedFileImage = await savePicture(photo, fileName);
     const newPhotos = [savedFileImage, ...photos];
     setPhotos(newPhotos);
     Preferences.set({key: PHOTO_STORAGE,value: JSON.stringify(newPhotos)});
+    console.log(photos);
   };
 
   const savePicture = async (photo: Photo, fileName: string): Promise<UserPhoto> => {
