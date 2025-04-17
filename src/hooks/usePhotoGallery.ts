@@ -10,27 +10,42 @@ const PHOTO_STORAGE = 'photos';
 
 export function usePhotoGallery() {
   const [photos, setPhotos] = useState<UserPhoto[]>([]);
-  useEffect(() => {
-    const loadSaved = async () => {
-      const { value } = await Preferences.get({key: PHOTO_STORAGE });
-
-      const photosInPreferences = (value ? JSON.parse(value) : []) as UserPhoto[];
-      // If running on the web...
-      if (!isPlatform('hybrid')) {
-        for (let photo of photosInPreferences) {
+  const loadSavedPhotos = async () => {
+    const { value } = await Preferences.get({ key: PHOTO_STORAGE });
+    const photosInPreferences = (value ? JSON.parse(value) : []) as UserPhoto[];
+  
+    let validPhotos: UserPhoto[] = [];
+  
+    if (!isPlatform('hybrid')) {
+      for (let photo of photosInPreferences) {
+        try {
           const file = await Filesystem.readFile({
             path: photo.filepath,
             directory: Directory.Data
           });
-          // Web platform only: Load the photo as base64 data
           photo.webviewPath = `data:image/jpeg;base64,${file.data}`;
+          validPhotos.push(photo);
+        } catch (error) {
+          console.warn(`File missing or unreadable: ${photo.filepath}`, error);
+          // Don't push this photo, it'll be excluded from validPhotos.
         }
       }
-      setPhotos(photosInPreferences);
-    };
-    loadSaved();
-  }, []);
-
+    } else {
+      // On native, assume the files are valid since the path contains absolute URIs.
+      validPhotos = photosInPreferences;
+    }
+    setPhotos(validPhotos);
+  
+    // If the list of valid photos is different, update Preferences to remove dead entries.
+    if (validPhotos.length !== photosInPreferences.length) {
+      await Preferences.set({
+        key: PHOTO_STORAGE,
+        value: JSON.stringify(validPhotos)
+      });
+      console.info(`Updated photo storage — removed missing files from preferences.`);
+    }
+  };
+  
   const takePhoto = async () => {
     const photo = await Camera.getPhoto({
       resultType: CameraResultType.Uri,
@@ -100,7 +115,8 @@ export function usePhotoGallery() {
   return {
     deletePhoto,
     photos,
-    takePhoto
+    takePhoto,
+    loadSavedPhotos
   };
 }
 

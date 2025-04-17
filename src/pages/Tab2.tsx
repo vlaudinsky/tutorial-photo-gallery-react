@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonImg, IonActionSheet, useIonViewDidEnter,useIonViewWillLeave, IonFab, IonFabButton, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol, IonImg, IonActionSheet, useIonViewWillEnter,useIonViewWillLeave, IonFab, IonFabButton, IonIcon } from '@ionic/react';
 import { trash, close, camera } from 'ionicons/icons';
 import { usePhotoGallery, UserPhoto } from '../hooks/usePhotoGallery';
 
 const Tab2: React.FC = () => {
-  const { deletePhoto, photos, takePhoto } = usePhotoGallery();
+  const { deletePhoto, photos, loadSavedPhotos } = usePhotoGallery();
   const [photoToDelete, setPhotoToDelete] = useState<UserPhoto>();
-
+  useIonViewWillEnter(() => {
+    loadSavedPhotos();
+  });
   return (
     <IonPage>
       <IonHeader>
